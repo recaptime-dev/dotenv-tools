@@ -1,6 +1,19 @@
 {
   "deno.enable": true,
   "conventionalCommits.scopes": [
-    "global"
+    "global",
+    "dotenvx",
+    "legal",
+    "github-actions",
+    "deno",
+    "dotenv-tools",
+    "vscode"
+  ],
+  "git.alwaysSignOff": true,
+  "gitlens.remotes": [
+    {
+      "domain": "mau.dev",
+      "type": "GitLab"
+    }
   ]
 }
