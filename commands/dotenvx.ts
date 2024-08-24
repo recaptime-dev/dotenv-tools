@@ -1,11 +1,93 @@
 import { Command } from "commander"
-import { execEnvxCli } from "../lib/helpers/dotenvxCli.ts";
+import { execEnvxCli, getSecret, loadSecretsAndExec, setSecret } from "../lib/helpers/dotenvxCli.ts";
 export const dotenvxCli = new Command("dotenvx")
-import { process } from "node:prcoess"
+
+// for use with run
+const envs: { type: any; value: any; }[] = []
+function collectEnvs (type) {
+  return function (value, previous) {
+    envs.push({ type, value })
+    return previous.concat([value])
+  }
+}
 
 dotenvxCli
   .description("access dotenvx features via dotenv-tools")
-  .action((command, args, cmdObj) => {
-    const rawArgs = Deno.args.slice(2); // adjust the index based on where actual args start
-    execEnvxCli(command, rawArgs);
+
+dotenvxCli
+  .command("run")
+  .description("inject env at runtime [dotenvx run -- yourcommand]")
+  .option(
+    "-e, --env <strings...>",
+    'environment variable(s) set as string (example: "HELLO=World")',
+    collectEnvs("env"),
+    []
+  )
+  .option(
+    "-f, --env-file <paths...>",
+    "path(s) to your env file(s)",
+    collectEnvs("envFile"),
+    []
+  )
+  .option(
+    "-fv, --env-vault-file <paths...>",
+    "path(s) to your .env.vault file(s)",
+    collectEnvs("envVaultFile"),
+    []
+  )
+  .option("-o, --overload", "override existing env variables")
+  .option(
+    "--convention <name>",
+    "load a .env convention (available conventions: ['nextjs'])"
+  )
+  .action(function (...args) {
+    this.envs = envs;
+
+    loadSecretsAndExec.apply(this, args);
   });
+
+dotenvxCli
+  .command("get")
+  .description("returns a single secret (or all secrets if blank)")
+  .argument("[key]", "environment variable name")
+  .option(
+    "-e, --env <strings...>",
+    'environment variable(s) set as string (example: "HELLO=World")',
+    collectEnvs("env"),
+    []
+  )
+  .option(
+    "-f, --env-file <paths...>",
+    "path(s) to your env file(s)",
+    collectEnvs("envFile"),
+    []
+  )
+  .option(
+    "-fv, --env-vault-file <paths...>",
+    "path(s) to your .env.vault file(s)",
+    collectEnvs("envVaultFile"),
+    []
+  )
+  .option("-o, --overload", "override existing env variables")
+  .option(
+    "--convention <name>",
+    "load a .env convention (available conventions: ['nextjs'])"
+  )
+  .option("-a, --all", "include all machine envs as well")
+  .option("-pp, --pretty-print", "pretty print output")
+  .action(function (...args) {
+    this.envs = envs;
+
+    getSecret.apply(this, args)
+  });
+
+dotenvxCli
+  .command("set")
+  .description("set a single environment variable")
+  .allowUnknownOption()
+  .argument("KEY", "secret name in uppercase and only underscores")
+  .argument("value", "secret value")
+  .option("-f, --env-file <paths...>", "path(s) to your env file(s)", ".env")
+  .option("-c, --encrypt", "encrypt value (default: true)", true)
+  .option("-p, --plain", "store value as plain text", false)
+  .action(setSecret);

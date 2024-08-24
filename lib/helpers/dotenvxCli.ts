@@ -1,16 +1,157 @@
 import path from "node:path"
 import * as childProceess from "node:child_process"
-import { dotenvxCli } from "../../commands/dotenvx.ts";
 import { logger } from "../logging.ts";
 
-export function execEnvxCli(command, rawArgs) {
-    if (!command) {
-        dotenvxCli.outputHelp()
-        Deno.exit(1)
-    }
-    const commandIndex = rawArgs.indexOf(command);
-    const forwardedArgs = rawArgs.slice(commandIndex + 1)
+/* 
+ * The dotenvx CLI prefix
+*/
+let dotenvxCliPrefix = `dotenvx`
 
-    logger.debug(`command: ${JSON.stringify(command)}`)
-    logger.debug(`args: ${JSON.stringify(forwardedArgs)}`)
+type cliOpts = {
+  all?: boolean,
+  prettyPrint?: boolean
+  env: Array<string>,
+  envFile: Array<string> | string,
+  envVaultFile?: Array<string>,
+  convention?: string,
+  overload?: boolean,
+  plain: boolean
+  encrypt: boolean
+}
+
+function getSecret(key: string) {
+  dotenvxCliPrefix += " get"
+  logger.debug(`key: ${key}`);
+  const options: cliOpts = this.opts();
+  logger.debug(`opts: ${JSON.stringify(options)}`);
+
+  // I know this is spaghetti code, but at least this works. I may
+  // improve this later on.
+  if (options.all == true) {
+    dotenvxCliPrefix += " --all"
+  }
+  if (options.prettyPrint == true) {
+    dotenvxCliPrefix += " --pretty-print"
+  }
+  if (options.overload == true) {
+    dotenvxCliPrefix += " --overload"
+  }
+  if (options.env.length > 0) {
+    options.env.forEach((env) => {
+      dotenvxCliPrefix += ` --env=${env}`
+    })
+  }
+  if (options.envFile.length > 0) {
+    options.envFile.forEach((envFile: string) => {
+      dotenvxCliPrefix += ` --env-file=${envFile}`
+    })
+  }
+  if (typeof options.envVaultFile != "undefined" && options.envVaultFile.length > 0) {
+    options.envFile.forEach((envVaultFile: string) => {
+      dotenvxCliPrefix += ` --env-vault-file=${envVaultFile}`;
+    });
+  }
+  if (options.convention == "nextjs") {
+    dotenvxCliPrefix += ` --convention=nextjs`
+  } else {
+    logger.successv(`convention flag only supports nextjs at upstream, skipping passing convention flag`)
+  }
+
+  if (key != undefined) {
+    dotenvxCliPrefix += ` ${key}`
+  }
+
+  logger.info(`executing [${dotenvxCliPrefix}]`)
+  try {
+    const result = childProceess.execSync(dotenvxCliPrefix, {
+      env: Deno.env.toObject(),
+      stdio: 'pipe'
+    }).toString()
+    logger.blank(result);
+  } catch (error) {
+    logger.error(error.message)
+    Deno.exit(1)
+  }
+}
+
+function setSecret(key: string, value: string) {
+  if (key == undefined || value == undefined) {
+    logger.error("either secret name or value is blank")
+    Deno.exit(1)
+  }
+  const options: cliOpts = this.opts()
+  dotenvxCliPrefix += ` set --env-file=${options.envFile}`;
+  logger.debug(`key: ${key}, value: ${value}`);
+  logger.debug(`opts: ${JSON.stringify(options)}`);
+  
+  if (options.plain == true) {
+    dotenvxCliPrefix += ` --plain`
+  }
+
+  dotenvxCliPrefix += ` ${key} ${value}`
+  logger.info(`executing [${dotenvxCliPrefix}]`);
+  try {
+    const result = childProceess
+      .execSync(dotenvxCliPrefix, {
+        env: Deno.env.toObject(),
+        stdio: "pipe",
+      })
+      .toString();
+    logger.blank(result);
+  } catch (error) {
+    logger.error(error.message);
+    Deno.exit(1);
+  }
+}
+
+function loadSecretsAndExec() {
+  const commandArgs: Array<string> = this.args
+  dotenvxCliPrefix += " run"
+  logger.debug(`process command [${commandArgs.join(' ')}]`)
+  const options: cliOpts = this.opts()
+  logger.debug(`options: ${JSON.stringify(options)}`)
+
+  if (commandArgs.length === 0) {
+    logger.error(`missing command after [dotenv-tools dotenvx run --]`)
+    logger.help2(`try: [dotenv-tools dotenvx run -- npm run dev]`)
+    Deno.exit(1)
+  }
+  if (options.env.length > 0) {
+    options.env.forEach((env) => {
+      dotenvxCliPrefix += ` --env=${env}`;
+    });
+  }
+  if (options.envFile.length > 0) {
+    options.envFile.forEach((envFile: string) => {
+      dotenvxCliPrefix += ` --env-file=${envFile}`;
+    });
+  }
+  if (
+    typeof options.envVaultFile != "undefined" &&
+    options.envVaultFile.length > 0
+  ) {
+    options.envFile.forEach((envVaultFile: string) => {
+      dotenvxCliPrefix += ` --env-vault-file=${envVaultFile}`;
+    });
+  }
+  dotenvxCliPrefix += ` -- ${commandArgs.join(" ")}`
+  logger.info(`executing [${dotenvxCliPrefix}] to load secrets and exec`);
+  try {
+    const result = childProceess
+      .execSync(dotenvxCliPrefix, {
+        env: Deno.env.toObject(),
+        stdio: "pipe",
+      })
+      .toString();
+    logger.blank(result);
+  } catch (error) {
+    logger.error(error.message);
+    Deno.exit(1);
+  }
+}
+
+export {
+  getSecret,
+  setSecret,
+  loadSecretsAndExec
 }
