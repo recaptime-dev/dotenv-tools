@@ -1,0 +1,9 @@
+{
+    "tasks": {
+        "cli": "deno run -A ./mod.ts"
+    },
+    "imports": {
+        "commander": "npm:commander",
+        "isomorphic-git": "npm:isomorphic-git"
+    }
+}

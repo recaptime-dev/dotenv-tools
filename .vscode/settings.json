@@ -1,0 +1,6 @@
+{
+  "deno.enable": true,
+  "conventionalCommits.scopes": [
+    "global"
+  ]
+}
