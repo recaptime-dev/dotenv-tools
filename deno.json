@@ -1,4 +1,7 @@
 {
+    "name": "@recaptime-dev/dotenv-tools",
+    "exports": "./mod.ts",
+    "version": "0.1.0",
     "tasks": {
         "cli": "deno run -A ./mod.ts"
     },
