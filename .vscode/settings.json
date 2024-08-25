@@ -15,5 +15,9 @@
       "domain": "mau.dev",
       "type": "GitLab"
     }
-  ]
+  ],
+  "editor.indentSize": "tabSize",
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.tabCompletion": "on",
 }

@@ -10,7 +10,12 @@ A Deno-based CLI to manage your dotenvx-encrypted secrets a la `gopass`.
 > [install dotenvx](https://dotenvx.com/docs/install) if it is not in
 > your PATH.
 
-## Install
+## Prerequisites
+
+* Node.js installed with `npx` for use in `dotenv-tools dotenvx` commands.
+* Git, obviously. (although it can download `.env` files from your repo over its raw URLs)
+
+## Usage
 
 With Deno:
 
@@ -27,3 +32,7 @@ With Node.js:
 ```bash
 # to be ported soon
 ```
+
+## License
+
+BSD-3-Clause AND MPL-2.0
