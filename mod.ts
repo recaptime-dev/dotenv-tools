@@ -1,9 +1,11 @@
 #!/usr/bin/env -S deno run -A
-import { Command, program } from "commander"
+import { Command, program } from "npm:commander"
+import type { Command as Cmd } from "npm:comamnder" 
 import { name, version, description } from "./lib/constants.ts"
 import { setLogLevel } from "./lib/logging.ts";
 import { setupRepo } from "./commands/setup.ts";
 import { dotenvxCli } from "./commands/dotenvx.ts";
+import { secrets } from "./commands/secrets.ts";
 
 program
   .name(name)
@@ -14,7 +16,7 @@ program
   .option("-q, --quiet", "sets log level to error")
   .option("-v, --verbose", "sets log level to verbose")
   .option("-d, --debug", "sets log level to debug")
-  .hook("preAction", (thisCommand: Command, actionCommand: Command) => {
+  .hook("preAction", (thisCommand: Cmd, _actionCommand: Cmd) => {
     const options = thisCommand.opts();
     setLogLevel(options);
   });
@@ -34,4 +36,5 @@ program
   .action(setupRepo);
 
 program.addCommand(dotenvxCli)
+program.addCommand(secrets)
 program.parse()
