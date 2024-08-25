@@ -20,7 +20,7 @@ const colors256 = new Map([
   ["red", 196],
 ]);
 
-export function getColor(color) {
+export function getColor(color: string) {
   const colorDepth = depth.getColorDepth();
   if (!colors256.has(color)) {
     throw new Error(`Invalid color ${color}`);

@@ -1,14 +1,15 @@
-import { Command } from "commander"
-import { execEnvxCli, getSecret, loadSecretsAndExec, setSecret } from "../lib/helpers/dotenvxCli.ts";
+import { Command } from "npm:commander"
+import { getSecret, loadSecretsAndExec, setSecret } from "../lib/helpers/dotenvxCli.ts";
 export const dotenvxCli = new Command("dotenvx")
 
 // for use with run
 const envs: { type: any; value: any; }[] = []
+//@ts-expect-error
 function collectEnvs (type) {
-  return function (value, previous) {
-    envs.push({ type, value })
-    return previous.concat([value])
-  }
+  return function (value: any, previous: any) {
+    envs.push({ type, value });
+    return previous.concat([value]);
+  };
 }
 
 dotenvxCli
@@ -41,8 +42,10 @@ dotenvxCli
     "load a .env convention (available conventions: ['nextjs'])"
   )
   .action(function (...args) {
+    // @ts-expect-error: commander usage
     this.envs = envs;
 
+    // @ts-expect-error: commander usage
     loadSecretsAndExec.apply(this, args);
   });
 
@@ -76,9 +79,11 @@ dotenvxCli
   .option("-a, --all", "include all machine envs as well")
   .option("-pp, --pretty-print", "pretty print output")
   .action(function (...args) {
+    // @ts-expect-error: commander usage
     this.envs = envs;
 
-    getSecret.apply(this, args)
+    // @ts-expect-error: commander usage
+    getSecret.apply(this, args);
   });
 
 dotenvxCli

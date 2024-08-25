@@ -3,10 +3,12 @@
     "exports": "./mod.ts",
     "version": "0.1.0",
     "tasks": {
-        "cli": "deno run -A ./mod.ts"
+        "cli": "deno run -A ./mod.ts",
+        "lint": "deno check ./mod.ts"
     },
-    "imports": {
-        "commander": "npm:commander",
-        "isomorphic-git": "npm:isomorphic-git"
+    "compilerOptions": {
+        "lib": [
+            "deno.window"
+        ]
     }
 }

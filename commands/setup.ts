@@ -26,7 +26,7 @@ const pwd = Deno.cwd()
  * @param {string} file
  * @returns {boolean}
  */
-function checkIfExists(file) {
+function checkIfExists(file: string) {
   if (!fs.existsSync(file)) {
     logger.debug(`${pwd}/${file} doesn't exist`);
     return false;
@@ -70,6 +70,7 @@ async function copyOrOverride(file: string, override?: boolean) {
  */
 export async function setupRepo(directory: string) {
   logger.debug(`directory: ${directory}`);
+  // @ts-expect-error: commander usage
   const options = this.opts();
   logger.debug(`options: ${JSON.stringify(options)}`);
 
@@ -90,9 +91,16 @@ export async function setupRepo(directory: string) {
     await cp(templatePath, `${pwd}/${directory}`, {
       recursive: true,
       force: options.overwrite || false,
+      filter: function (source, destination) {
+        logger.debug(`[init] src: ${source}, dest: ${destination}`);
+        if (source.includes("node_modules")) {
+          return false;
+        } else {
+          return true;
+        }
+      },
     });
   }
-  git
-    .init({ fs, dir: directory, defaultBranch: "main" })
-    .then(logger.success(`successfully initialized git repo`));
+  git.init({ fs, dir: directory, defaultBranch: "main" });
+  logger.success(`successfully initialized git repo`);
 }

@@ -25,7 +25,7 @@ const levels = {
   silly: 6,
 };
 
-const error = (m) => bold(getColor("red")(m));
+const error = (m: string) => bold(getColor("red")(m));
 const warn = getColor("orangered");
 const success = getColor("green");
 const successv = getColor("olive"); // yellow-ish tint that 'looks' like dotenv
@@ -36,18 +36,20 @@ const debug = getColor("plum");
 
 let currentLevel = levels.info; // default log level
 
-function log(level, message) {
+function log(level: string, message: string) {
+  //@ts-expect-error
   if (levels[level] === undefined) {
     throw new Error(`MISSING_LOG_LEVEL: '${level}'. implement in logger.`);
   }
 
+  //@ts-expect-error
   if (levels[level] <= currentLevel) {
     const formattedMessage = formatMessage(level, message);
     console.log(formattedMessage);
   }
 }
 
-export function formatMessage(level, message) {
+export function formatMessage(level: string, message: string) {
   const formattedMessage =
     typeof message === "object" ? JSON.stringify(message) : message;
 
@@ -144,14 +146,18 @@ export const logger = {
   debug: (msg: string) => log("debug", msg),
   // blank
   blank: (msg: string) => log("blank", msg),
+  //@ts-expect-error: used by setLogLevel and friends
   setLevel: (level) => {
+    //@ts-expect-error: see above
     if (levels[level] !== undefined) {
+      //@ts-expect-error: we need to fetch from levels object
       currentLevel = levels[level];
       logger.level = level;
     }
   },
 };
 
+// @ts-expect-error: needed by global logs
 export function setLogLevel(options) {
   const logLevel = options.debug
     ? "debug"
