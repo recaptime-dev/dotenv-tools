@@ -4,11 +4,24 @@
     "version": "0.1.0",
     "tasks": {
         "cli": "deno run -A ./mod.ts",
-        "lint": "deno check ./mod.ts"
+        "lint": "deno check ./mod.ts",
+        "cache": "deno cache ./mod.ts --reload"
     },
     "compilerOptions": {
         "lib": [
             "deno.window"
         ]
+    },
+    "imports": {
+        "@inquirer/prompts": "npm:@inquirer/prompts",
+        "commander": "npm:commander",
+        "isomorphic-git": "npm:isomorphic-git"
+    },
+    "fmt": {
+        "indentWidth": 2,
+        "semiColons": true,
+        "singleQuote": false,
+        "useTabs": false,
+        "lineWidth": 90
     }
 }

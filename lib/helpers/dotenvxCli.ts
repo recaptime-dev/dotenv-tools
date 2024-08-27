@@ -157,13 +157,29 @@ function loadSecretsAndExec() {
 }
 
 function encryptSecrets() {
+  dotenvxCliPrefix += ` encrypt`
+  // @ts-expect-error: commander usage
   const options: cliOpts = this.opts();
   logger.debug(`options: ${JSON.stringify(options)}`);
+
+  if (Array.isArray(options.envFile) && options.envFile.length > 0) {
+    options.envFile.forEach((envFile: string) => {
+      dotenvxCliPrefix += ` --env-file=${envFile}`;
+    });
+  }
 }
 
 function decryptSecrets() {
+  dotenvxCliPrefix += ` decrypt`;
+  // @ts-expect-error: commander usage
   const options: cliOpts = this.opts();
   logger.debug(`options: ${JSON.stringify(options)}`);
+
+  if (Array.isArray(options.envFile) && options.envFile.length > 0) {
+    options.envFile.forEach((envFile: string) => {
+      dotenvxCliPrefix += ` --env-file=${envFile}`;
+    });
+  }
 }
 
 export {

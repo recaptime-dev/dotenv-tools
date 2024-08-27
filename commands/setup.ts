@@ -1,7 +1,7 @@
 import { cp, copyFile } from "node:fs/promises";
 import * as fs from "node:fs";
 import path from "node:path";
-import git from "npm:isomorphic-git";
+import git from "isomorphic-git";
 import { fileURLToPath } from "node:url";
 import { logger } from "../lib/logging.ts";
 
